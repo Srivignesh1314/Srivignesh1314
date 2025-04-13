@@ -1,0 +1,133 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node {
+    int data;
+    struct node* prev;
+    struct node* next;
+};
+
+int get_length(struct node* head) {
+    int count = 0;
+    while (head != NULL) {
+        count++;
+        head = head->next;
+    }
+    return count;
+}
+
+int main() {
+    struct node *head = NULL, *new_node, *temp;
+    int choice = 1;
+
+    // ---------------- Insertion Part ----------------
+    while (choice) {
+        int position;
+        new_node = (struct node*)malloc(sizeof(struct node));
+        if (new_node == NULL) {
+            printf("Memory allocation failed.\n");
+            return 1;
+        }
+
+        printf("Enter data: ");
+        scanf("%d", &new_node->data);
+        new_node->prev = NULL;
+        new_node->next = NULL;
+
+        printf("Enter position to insert (1 for beginning, or any position): ");
+        scanf("%d", &position);
+
+        if (position < 1) {
+            printf("Invalid position. Skipping this insertion.\n");
+            free(new_node);
+        } else if (head == NULL || position == 1) {
+            new_node->next = head;
+            if (head != NULL)
+                head->prev = new_node;
+            head = new_node;
+        } else {
+            temp = head;
+            int i = 1;
+            while (temp->next != NULL && i < position - 1) {
+                temp = temp->next;
+                i++;
+            }
+
+            new_node->next = temp->next;
+            new_node->prev = temp;
+            if (temp->next != NULL)
+                temp->next->prev = new_node;
+            temp->next = new_node;
+        }
+
+        printf("Do you want to insert another node? (1 for Yes / 0 for No): ");
+        scanf("%d", &choice);
+    }
+
+    // ---------- Length of list ----------
+    int len = get_length(head);
+    printf("The length of the linked list is: %d\n", len);
+
+    // ---------------- Display List ----------------
+    printf("The linked list is: ");
+    temp = head;
+    while (temp != NULL) {
+        printf("%d <-> ", temp->data);
+        temp = temp->next;
+    }
+    printf("NULL\n");
+
+    // ---------------- Deletion Part ----------------
+    printf("\nDo you want to delete a node? (1 for Yes / 0 for No): ");
+    scanf("%d", &choice);
+
+    while (choice) {
+        int del_pos;
+        printf("Enter the position of the node to delete: ");
+        scanf("%d", &del_pos);
+
+        if (del_pos < 1 || head == NULL) {
+            printf("Invalid position or list is empty.\n");
+        } else if (del_pos == 1) {
+            // Delete head
+            temp = head;
+            head = head->next;
+            if (head != NULL)
+                head->prev = NULL;
+            printf("Deleted node with data: %d\n", temp->data);
+            free(temp);
+        } else {
+            temp = head;
+            int i = 1;
+            while (temp != NULL && i < del_pos) {
+                temp = temp->next;
+                i++;
+            }
+
+            if (temp == NULL) {
+                printf("Position out of bounds.\n");
+            } else {
+                if (temp->prev != NULL)
+                    temp->prev->next = temp->next;
+                if (temp->next != NULL)
+                    temp->next->prev = temp->prev;
+                printf("Deleted node with data: %d\n", temp->data);
+                free(temp);
+            }
+        }
+
+        // Display updated list
+        printf("Updated linked list: ");
+        temp = head;
+        while (temp != NULL) {
+            printf("%d <-> ", temp->data);
+            temp = temp->next;
+        }
+        printf("NULL\n");
+
+        printf("\nDo you want to delete another node? (1 for Yes / 0 for No): ");
+        scanf("%d", &choice);
+    }
+
+    return 0;
+}
